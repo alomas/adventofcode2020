@@ -4,3 +4,4 @@ project(advent31)
 set(CMAKE_CXX_STANDARD 14)
 
 add_executable(advent31 advent-day03.cpp)
+add_executable(advent41 advent-day04.cpp)
