@@ -13,10 +13,8 @@ int main(int argc, char *argv[]) {
         bool visited;
     };
     map<int, opdata> opmap, opmapog;
-
     while (std::getline(std::cin, qline) && qline!="")
     {
-        cout << "Processing line: "  << qline << endl;
         qline += " ";
         string op = "";
         string numstr = "";
@@ -44,9 +42,7 @@ int main(int argc, char *argv[]) {
         opobject.value = num;
         opobject.visited = false;
         opmapog.insert(make_pair(opnum, opobject ));
-
     }
-
     opmap = opmapog;
     int acc;
     int pos;
@@ -58,16 +54,12 @@ int main(int argc, char *argv[]) {
         bool nodupevisit = true;
         acc = 0;
         pos = 1;
-        int ended = 0;
         if (object.opname == "jmp")
         {
-            //cout << "Changing " << object.opname << " " << object.value << " to " << "nop" << endl;
             object.opname = "nop";
             opmap = opmapog;
-
             opmap.erase(jmpnop);
             opmap.insert(make_pair(jmpnop, object));
-
             while (nodupevisit && pos < opmap.size()+1)
             {
                 opdata object;
@@ -96,13 +88,8 @@ int main(int argc, char *argv[]) {
             if ((pos == opmap.size()+1) && nodupevisit){
                 cout << "Goal acc = " << acc << endl;
             }
-            //cout << "acc value before dupe = " << acc << endl;
-
         }
-
-        //cout << "jmpnop = " << jmpnop << " acc value before dupe = " << acc << endl;
         jmpnop++;
-
     }
     return 0;
 }
