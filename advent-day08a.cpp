@@ -4,157 +4,81 @@
 
 using namespace std;
 
-int findGold(map<string, map<string, int>> &outerbagmap, string bagtosearch, int depth)
-{
-    int result = 0;
-    int bagnum = 0;
-
-    auto item = outerbagmap.find(bagtosearch);
-
-    if (item != outerbagmap.end())
-    {
-        for_each(item->second.begin(), item->second.end(), [&outerbagmap, &result, &bagnum, depth](const std::pair<string, int> subitem)
-        {
-            for (int f=0; f<depth+1; f++)
-                cout << " ";
-            cout  << "+" << subitem.second << " - " << subitem.first << endl;
-
-            if (subitem.first != "no other bag")
-            {
-                result = findGold(outerbagmap, subitem.first, depth + 1);
-                bagnum += (result * subitem.second) + subitem.second;
-
-            }
-            return 0;
-        });
-    }
-
-
-    return bagnum;
-}
-
 int main(int argc, char *argv[]) {
     std::string qline;
     int total=0;
-
-    map<string, int> innerbagmap;
-
-    map<string, map<string, int>> outerbagmap;
-
+    int opnum = 0;
+    struct opdata {
+        string opname;
+        int value;
+        bool visited;
+    };
+    map<int, opdata> opmap;
 
     while (std::getline(std::cin, qline) && qline!="")
     {
         cout << "Processing line: "  << qline << endl;
-        int outerPos = qline.find(" contain ");
-        string outsidebag = qline.substr(0, outerPos);
-        if (outsidebag[outsidebag.length()-1] == 's')
+        qline += " ";
+        string op = "";
+        string numstr = "";
+        string buff = "";
+        int num;
+        vector<string> v;
+        for (auto n:qline)
         {
-            outsidebag.erase(outsidebag.length()-1);
+            if (n != ' ')
+            {
+                buff += n;
+            }
+            else
+            {
+                v.push_back(buff);
+                buff = "";
+            }
         }
-
-        int middle = strlen(" contain ");
-        middle += outerPos;
-        bool lastone = false;
-        string innerbags = qline.substr(middle);
-        {
-            innerbagmap.clear();
-
-            char c = ',';
-            string buff = "";
-            vector<string> v;
-            int fieldnum = 0;
-            for(auto n:innerbags)
-            {
-                if(n != c) buff+=n; else
-                if(n == c && buff != "") {
-                    fieldnum++;
-                    // cout << " fieldnum: " << fieldnum << endl;
-                    if (buff[buff.length()-1] == 's')
-                    {
-                        buff.erase(buff.length()-1);
-                    }
-                    if (buff[0] == ' ')
-                    {
-                        buff.erase(0, 1);
-                    }
-                    int num;
-                    string bagtype;
-                    int nPos = buff.find(" ");
-                    string numstr = buff.substr(0, nPos);
-                    num = stoi(numstr);
-                    bagtype = buff.substr(nPos+1);
-                    innerbagmap.insert(make_pair(bagtype, num));
-                    // cout << bagtype << ", " << num << endl;
-                    v.push_back(buff); buff = ""; }
-            }
-            if (buff[0] == ' ')
-            {
-                buff.erase(0, 1);
-            }
-            if (buff[buff.length()-1] == '.')
-            {
-                lastone = true;
-                buff.erase(buff.length()-1);
-                total++;
-            }
-            if (buff[buff.length()-1] == 's')
-            {
-                buff.erase(buff.length()-1);
-            }
-            if(buff != "") v.push_back(buff);
-            int num;
-            string bagtype;
-            int nPos = buff.find(" ");
-            string numstr = buff.substr(0, nPos);
-            if (buff == "no other bag")
-            {
-                num = 0;
-                bagtype = "no other bag";
-            }
-            else {
-                num = stoi(numstr);
-                bagtype = buff.substr(nPos + 1);
-            }
-            innerbagmap.insert(make_pair(bagtype, num));
-            if (lastone) {
-                outerbagmap.insert(make_pair(outsidebag, innerbagmap));
-            }
-            //for(auto n:v) cout << n << endl;
-        }
+        numstr = v[1];
+        num = atoi(numstr.c_str());
+        op = v[0];
+        opnum++;
+        opdata opobject;
+        opobject.opname = op;
+        opobject.value = num;
+        opobject.visited = false;
+        opmap.insert(make_pair(opnum, opobject ));
 
     }
-    int goldbags = 0;
-    for_each(outerbagmap.begin(), outerbagmap.end(), [](const std::pair<string, map<string, int>> item)
-    {
-        cout << "Outer: " << item.first << endl;
-        for_each(item.second.begin(), item.second.end(), [](const std::pair<string, int> subitem)
-        {
-            cout << " " << subitem.second << " " << subitem.first << endl;
-        });
-    });
-    cout << "Total: " << goldbags << endl << endl << endl;
 
-    int totalbags =  findGold(outerbagmap, "shiny gold bag", 1);
-    cout << "Total Bags: " << totalbags << endl;
-
-    if (argc > 1)
+    bool nodupevisit = true;
+    int acc = 0;
+    int pos = 1;
+    while (nodupevisit)
     {
-        auto item = outerbagmap.find(argv[1]);
-        if (item==outerbagmap.end())
+        opdata object;
+        opdata tempobject;
+        int jmp = 1;
+        object = opmap[pos];
+        tempobject.value = object.value;
+        tempobject.opname = object.opname;
+        tempobject.visited = object.visited;
+        opmap.erase(pos);
+        if (tempobject.visited == true)
         {
-            cout << "Could not find outer bag " << argv[1] << endl;
+            nodupevisit = false;
         }
-        else
-        {
-            map<string, int> theitem;
-            theitem = item->second;
-            cout << "For Outer Bag " << argv[1] << ": " << endl;
-            for_each(item->second.begin(), item->second.end(), [](const std::pair<string, int> subitem)
-            {
-                cout << " " << subitem.second << " " << subitem.first << endl;
-            });
+        else {
+            if (tempobject.opname == "acc") {
+                acc += object.value;
+                tempobject.visited = true;
+            }
+            if (tempobject.opname == "jmp") {
+                jmp = object.value;
+                tempobject.visited = true;
+            }
         }
+        opmap.insert(make_pair(pos, tempobject));
+        pos += jmp;
+
     }
-
+    cout << "acc value before dupe = " << acc << endl;
     return 0;
 }
