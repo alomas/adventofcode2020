@@ -2,50 +2,35 @@
 #include <map>
 #include <vector>
 
-
 using namespace std;
 
 int findGold(map<string, map<string, int>> &outerbagmap, string bagtosearch, int depth)
 {
-    bool foundgold = false;
     int result = 0;
+    int bagnum = 0;
 
     auto item = outerbagmap.find(bagtosearch);
-    if (bagtosearch == "shiny gold bag")
-    {
-        return true;
-    }
+
     if (item != outerbagmap.end())
     {
-        for_each(item->second.begin(), item->second.end(), [&outerbagmap, &result, &foundgold, depth](const std::pair<string, int> subitem)
+        for_each(item->second.begin(), item->second.end(), [&outerbagmap, &result, &bagnum, depth](const std::pair<string, int> subitem)
         {
             for (int f=0; f<depth+1; f++)
                 cout << " ";
-            cout  << subitem.first << endl;
-            if (subitem.first == "shiny gold bag")
+            cout  << "+" << subitem.second << " - " << subitem.first << endl;
+
+            if (subitem.first != "no other bag")
             {
-                for (int f=0; f<depth+1; f++)
-                    cout << " ";
-                foundgold = true;
-                cout << "Found Gold!" << endl;
-                return 1;
+                result = findGold(outerbagmap, subitem.first, depth + 1);
+                bagnum += (result * subitem.second) + subitem.second;
+
             }
-           if (subitem.first != "no other bag")
-           {
-               result = findGold(outerbagmap, subitem.first, depth + 1);
-               for (int f=0; f<depth+1; f++)
-                   cout << " ";
-               if (result > 0)
-               {
-                   foundgold = true;
-                   cout << "Found Gold! " << endl;
-                   return 1;
-               }
-           }
-           return 0;
+            return 0;
         });
     }
-    return foundgold;
+
+
+    return bagnum;
 }
 
 int main(int argc, char *argv[]) {
@@ -59,6 +44,7 @@ int main(int argc, char *argv[]) {
 
     while (std::getline(std::cin, qline) && qline!="")
     {
+        cout << "Processing line: "  << qline << endl;
         int outerPos = qline.find(" contain ");
         string outsidebag = qline.substr(0, outerPos);
         if (outsidebag[outsidebag.length()-1] == 's')
@@ -82,6 +68,7 @@ int main(int argc, char *argv[]) {
                 if(n != c) buff+=n; else
                 if(n == c && buff != "") {
                     fieldnum++;
+                    // cout << " fieldnum: " << fieldnum << endl;
                     if (buff[buff.length()-1] == 's')
                     {
                         buff.erase(buff.length()-1);
@@ -132,23 +119,23 @@ int main(int argc, char *argv[]) {
             if (lastone) {
                 outerbagmap.insert(make_pair(outsidebag, innerbagmap));
             }
+            //for(auto n:v) cout << n << endl;
         }
 
     }
     int goldbags = 0;
-    for_each(outerbagmap.begin(), outerbagmap.end(), [&outerbagmap, &goldbags](const std::pair<string, map<string, int>> item)
+    for_each(outerbagmap.begin(), outerbagmap.end(), [](const std::pair<string, map<string, int>> item)
     {
         cout << "Outer: " << item.first << endl;
-        if ((item.first != "shiny gold bag") && findGold(outerbagmap, item.first, 1))
-            goldbags++;
         for_each(item.second.begin(), item.second.end(), [](const std::pair<string, int> subitem)
         {
             cout << " " << subitem.second << " " << subitem.first << endl;
         });
     });
-    cout << "Total: " << goldbags << endl;
+    cout << "Total: " << goldbags << endl << endl << endl;
 
-    findGold(outerbagmap, "light red bag", 1);
+    int totalbags =  findGold(outerbagmap, "shiny gold bag", 1);
+    cout << "Total Bags: " << totalbags << endl;
 
     if (argc > 1)
     {
