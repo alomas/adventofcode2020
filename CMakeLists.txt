@@ -8,6 +8,7 @@ project(advent71a)
 project(advent71b)
 project(advent81a)
 project(advent81b)
+project(advent91a)
 
 set(CMAKE_CXX_STANDARD 20)
 
@@ -20,3 +21,4 @@ add_executable(advent71a advent-day07a.cpp)
 add_executable(advent71b advent-day07b.cpp)
 add_executable(advent81a advent-day08a.cpp)
 add_executable(advent81b advent-day08b.cpp)
+add_executable(advent91a advent-day09a.cpp)
