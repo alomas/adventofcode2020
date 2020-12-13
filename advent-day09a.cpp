@@ -1,24 +1,45 @@
 #include <iostream>
-#include <map>
 #include <list>
-#include <vector>
 
 using namespace std;
 
 int main(int argc, char *argv[]) {
     std::string qline;
-    int opnum = 0;
-    std::list<int> numchain;
+    std::list<long long> numchain;
+    bool notfound = true;
     while (std::getline(std::cin, qline) && qline!="")
     {
-        int num;
-        num = std::atoi(qline.c_str());
-        numchain.push_back(num);
-        cout << "num = " << num << endl;
-
+        long long num;
+        num = std::stoll(qline.c_str());
+        if (numchain.size() < 25)
+        {
+            numchain.push_back(num);
+        }
+        else {
+            notfound = false;
+            for (auto it = numchain.begin(); it != numchain.end(); ++it)
+            {
+                    long long diff;
+                    diff = num - *it;
+                    auto result = std::find(numchain.begin(), numchain.end(), diff);
+                    if (result != numchain.end()) {
+                        notfound = false;
+                        break;
+                    } else {
+                        notfound = true;
+                    }
+                }
+            if (notfound)
+            {
+                cout << "Not found " << num;
+                return 1;
+            }
+            if (numchain.size() == 25) {
+                numchain.pop_front();
+            }
+            numchain.push_back(num);
+        }
     }
-
     cout << "size of list: " << numchain.size() << endl;
-
     return 0;
 }
